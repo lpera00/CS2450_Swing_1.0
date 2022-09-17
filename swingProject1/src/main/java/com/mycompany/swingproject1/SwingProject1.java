@@ -35,7 +35,7 @@ public class SwingProject1 {
     private static void createAndShowGUI(){
     JFrame frame = new JFrame("Swing Project 1.0");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.add(new Screen());
+    frame.add(new TitleScreen());
     frame.pack(); //update JFrame to show new additions/info
     frame.setSize(600,400);
     frame.setLocationRelativeTo(null); //centers window
@@ -44,10 +44,10 @@ public class SwingProject1 {
     
 }
 
- class Screen extends JPanel implements ActionListener{
+ class TitleScreen extends JPanel implements ActionListener{
      private Timer screenTimer = new Timer(3000, this);
      
-        public Screen(){
+        public TitleScreen(){
             //start 3 second timer
             screenTimer.start();
             screenTimer.setRepeats(false);
