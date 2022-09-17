@@ -141,9 +141,6 @@ class PlayScreen extends JPanel implements ActionListener{
     private String currentTime = "";
     //triggers the timer to update every second
     private Timer timeAndDateTimer = new Timer(1000, this);
-    //generate random number between 0-4
-    //to randomly choose one of the five words
-    private int randomNum = (int)(Math.random() * 5);
     private String targetWord = "";
     //errors = incorrect guesses
     private static int errors = 0;
@@ -190,29 +187,33 @@ class PlayScreen extends JPanel implements ActionListener{
             });
             add(testIncorrectButton);
             
+            targetWord = chooseWord();
             
-            //randomly choose word
-            switch(randomNum){
-                case 0:
-                    targetWord = "abstract";
-                break;
-                case 1:
-                    targetWord = "cemetery";
-                break;
-                case 2:
-                    targetWord = "nurse";
-                break;
-                case 3:
-                    targetWord = "pharmacy";
-                break;
-                case 4:
-                    targetWord = "climbing";
-                break;
-                default:
-                    targetWord = "abstract";
-            }
+            
             
     }
+    
+    // returns one of the specified words.
+    private String chooseWord() {
+    //generate random number between 0-4
+    //to randomly choose one of the five words
+    int randomNum = (int) (Math.random() * 5);
+    //randomly choose word
+    switch (randomNum) {
+        case 0:
+            return "abstract";
+        case 1:
+            return "cemetery";
+        case 2:
+            return "nurse";
+        case 3:
+            return "pharmacy";
+        case 4:
+            return "climbing";
+        default:
+            return "abstract";
+    }
+}
     
     public void chooseHangmanImage(){
     //choose hangman image based on # of errors
