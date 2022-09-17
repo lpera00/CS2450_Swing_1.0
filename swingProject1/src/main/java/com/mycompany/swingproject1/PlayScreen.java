@@ -5,11 +5,9 @@
 package com.mycompany.swingproject1;
 
 import java.awt.Button;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -19,15 +17,14 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import javax.imageio.ImageIO;
-import javax.swing.JPanel;
-import javax.swing.Timer;
+import javax.swing.*;
 
 /**
  *
  * @author PK_Flunr
  */
 class PlayScreen extends JPanel implements ActionListener{
-    private Button backButton;
+    private JButton backButton;
     private String currentDate = "";
     private String currentTime = "";
     //triggers the timer to update every second
@@ -35,53 +32,119 @@ class PlayScreen extends JPanel implements ActionListener{
     private String targetWord = "";
     //errors = incorrect guesses
     private static int errors = 0;
-    private Button testCorrectButton;
-    private Button testIncorrectButton;
+    private JButton testCorrectButton;
+    private JButton testIncorrectButton;
+    
+    private JLabel hangmanImageDisplayer;
+    
+    private JPanel upperContainer;
+    private JLabel dateAndTimeDisplayer;
+    private JLabel testAnswerDisplayer;
+    
+    private JLabel gameplayLabel;
+    private String gameplayLabelString;
+    
+    private JLabel gameplayUnderline;
+    
+    
     private static BufferedImage hangmanImage = null;
 
     
-    public PlayScreen(){
-        setSize(600,400);
+    public PlayScreen() {
+        setSize(600, 400);
         setVisible(true);
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         timeAndDateTimer.start();
         timeAndDateTimer.setRepeats(true);
         errors = 0;
-        chooseHangmanImage();
-        getCurrentDateAndTime();
+        
+        upperContainer = new JPanel();
+        upperContainer.setVisible(true);
+        upperContainer.setLayout(new FlowLayout());
+        add(upperContainer);
         
         //back button
-        backButton = new Button("back");
-            backButton.setBounds(475, 325, 100, 20);
-            backButton.addActionListener(new ActionListener(){
-                public void actionPerformed(ActionEvent e){
-                    errors = 0;
-                    backButton.setEnabled(false);
-                    backButton.setVisible(false);
-                    testIncorrectButton.setEnabled(false);
-                    testIncorrectButton.setVisible(false);
-                    repaint();
-                    setEnabled(false);
-                    add(new MenuScreen());
-                    timeAndDateTimer.stop();
-                }
-            });
-            add(backButton);
-            
-          //back button
-            testIncorrectButton = new Button("test incorrect");
-            testIncorrectButton.setBounds(75, 325, 100, 20);
-            testIncorrectButton.addActionListener(new ActionListener(){
-                public void actionPerformed(ActionEvent e){
-                    errors++;
-                    chooseHangmanImage();
-                }
-            });
-            add(testIncorrectButton);
-            
-            targetWord = chooseWord();
-            
-            
-            
+        backButton = new JButton("back");
+        //backButton.setBounds(475, 325, 100, 20);
+        backButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                errors = 0;
+                backButton.setEnabled(false);
+                backButton.setVisible(false);
+                testIncorrectButton.setEnabled(false);
+                testIncorrectButton.setVisible(false);
+                repaint();
+                setEnabled(false);
+                add(new MenuScreen());
+                timeAndDateTimer.stop();
+            }
+        });
+        upperContainer.add(backButton);
+
+        //back button
+        testIncorrectButton = new JButton("test incorrect");
+        //testIncorrectButton.setBounds(75, 325, 100, 20);
+        testIncorrectButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                errors++;
+                chooseHangmanImage();
+            }
+        });
+        upperContainer.add(testIncorrectButton);
+        
+        testAnswerDisplayer = new JLabel();
+        targetWord = chooseWord();
+        testAnswerDisplayer.setText("target word: " + targetWord);
+        upperContainer.add(testAnswerDisplayer);
+        
+        dateAndTimeDisplayer = new JLabel();
+        getCurrentDateAndTime();
+        upperContainer.add(dateAndTimeDisplayer);
+        
+
+        hangmanImageDisplayer = new JLabel();
+        chooseHangmanImage();
+        add(hangmanImageDisplayer);
+        
+        add(Box.createVerticalGlue());
+        
+        Font gameplayFont = new Font("Consolas",Font.BOLD,40);
+        
+        gameplayLabel = new JLabel();
+        gameplayLabelString = "";
+        for(int i = 0; i < targetWord.length(); i++){
+            gameplayLabelString += " ";
+        }
+        
+        gameplayLabelString = targetWord; // temp
+        
+        gameplayLabel.setAlignmentY(BOTTOM_ALIGNMENT);
+        
+        gameplayLabel.setFont(gameplayFont);
+        gameplayLabel.setText(gameplayLabelString);
+        add(gameplayLabel);
+        
+        gameplayUnderline = new JLabel();
+        String underline = "";
+        for(int i = 0; i < targetWord.length(); i++){
+            underline += "-";
+        }
+        
+        gameplayLabel.setAlignmentY(TOP_ALIGNMENT);
+        
+        gameplayUnderline.setFont(gameplayFont);
+        gameplayUnderline.setText(underline);
+        add(gameplayUnderline);
+
+        add(Box.createRigidArea(new Dimension(0,5)));
+        
+        LetterUI keyboard = new LetterUI();
+        add(keyboard);
+        Dimension size = keyboard.getPreferredSize();
+        //keyboard.setBounds(-600,300,size.width,size.height);
+        keyboard.repaint();
+        repaint();
+
     }
     
     // returns one of the specified words.
@@ -106,7 +169,7 @@ class PlayScreen extends JPanel implements ActionListener{
     }
 }
     
-    public void chooseHangmanImage(){
+    private void chooseHangmanImage(){
     //choose hangman image based on # of errors
             switch(errors){
             case 0:
@@ -160,6 +223,8 @@ class PlayScreen extends JPanel implements ActionListener{
                     hangmanImage = ImageIO.read(new File("src\\hangman_00.png"));
                 }catch(IOException e){}        
             }
+            // displays image using hangmanImageDisplayer
+            hangmanImageDisplayer.setIcon(new ImageIcon(hangmanImage));
             repaint();
     }
     
@@ -180,27 +245,26 @@ class PlayScreen extends JPanel implements ActionListener{
             DateTimeFormatter time = DateTimeFormatter.ofPattern("HH:mm:ss");
             LocalTime localTime = LocalTime.ofInstant(now, ZoneId.systemDefault());
             currentTime = time.format(localTime);
+            
+            dateAndTimeDisplayer.setText(currentDate.substring(0, currentDate.length() - 5) + "," + 
+                currentDate.substring(currentDate.length() - 5, currentDate.length())
+                + " " + currentTime);
     }
             
             
     
-    public void paintComponent(Graphics g){
-        //display hangman image
-        g.drawImage(hangmanImage, 180, 30, 150, 150, this);            
-        //display current date w/ a comma after the day
-        g.setColor(Color.white);
-        g.fillRect(400, 3, 180, 20);
-        g.setColor(Color.black);
-        if(currentDate.length() > 0 && currentTime.length() > 0){
-        g.drawString(currentDate.substring(0, currentDate.length() - 5) + "," + 
-                currentDate.substring(currentDate.length() - 5, currentDate.length())
-                + " " + currentTime, 410, 15);
-        }
-        g.drawString("target word: " + targetWord, 10, 20);
-        int offset = 40;
-        for(int i = 0; i < targetWord.length(); i++){
-            g.fillRect(160 + (i*offset), 200, 30, 3);
+}
+
+class LetterUI extends JPanel {
+    public LetterUI() {
+        setSize(600,150);
+        // using GridLayout
+        setLayout(new GridLayout(2,13));
+        
+        for(char i = 'a'; i <= 'z'; i++) {
+            JButton newButton = new JButton("" + i);
+            
+            add(newButton);
         }
     }
-
 }
