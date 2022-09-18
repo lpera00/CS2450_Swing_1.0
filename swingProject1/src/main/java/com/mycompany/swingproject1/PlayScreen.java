@@ -32,8 +32,8 @@ class PlayScreen extends JPanel implements ActionListener{
     private String targetWord = "";
     //errors = incorrect guesses
     private static int errors = 0;
-    private JButton testCorrectButton;
-    private JButton testIncorrectButton;
+    private JButton skipButton;
+    private JButton restartButton;
     
     private JLabel hangmanImageDisplayer;
     
@@ -47,6 +47,8 @@ class PlayScreen extends JPanel implements ActionListener{
     private JLabel gameplayUnderline;
     
     private LetterUI keyboard;
+    
+    private int currentScore;
     
     
     private static BufferedImage hangmanImage = null;
@@ -73,8 +75,8 @@ class PlayScreen extends JPanel implements ActionListener{
                 errors = 0;
                 backButton.setEnabled(false);
                 backButton.setVisible(false);
-                testIncorrectButton.setEnabled(false);
-                testIncorrectButton.setVisible(false);
+                restartButton.setEnabled(false);
+                restartButton.setVisible(false);
                 removeAll();
                 setLayout(new FlowLayout());
                 repaint();
@@ -85,20 +87,29 @@ class PlayScreen extends JPanel implements ActionListener{
         });
         upperContainer.add(backButton);
 
-        //back button
-        testIncorrectButton = new JButton("test incorrect");
-        //testIncorrectButton.setBounds(75, 325, 100, 20);
-        testIncorrectButton.addActionListener(new ActionListener() {
+        //skip button
+        skipButton = new JButton("Skip");
+        skipButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                errors++;
-                chooseHangmanImage();
+                endGame(0);
             }
         });
-        upperContainer.add(testIncorrectButton);
+        upperContainer.add(skipButton);
+        
+        //restart button
+        restartButton = new JButton("Next");
+        restartButton.setVisible(false);
+        //testIncorrectButton.setBounds(75, 325, 100, 20);
+        restartButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                //restart();
+                endGame(currentScore);
+                restartButton.setVisible(false);
+            }
+        });
+        upperContainer.add(restartButton);
         
         testAnswerDisplayer = new JLabel();
-        targetWord = chooseWord();
-        testAnswerDisplayer.setText("target word: " + targetWord);
         upperContainer.add(testAnswerDisplayer);
         
         dateAndTimeDisplayer = new JLabel();
@@ -107,7 +118,6 @@ class PlayScreen extends JPanel implements ActionListener{
         
 
         hangmanImageDisplayer = new JLabel();
-        chooseHangmanImage();
         add(hangmanImageDisplayer);
         
         add(Box.createVerticalGlue());
@@ -115,27 +125,17 @@ class PlayScreen extends JPanel implements ActionListener{
         Font gameplayFont = new Font("Consolas",Font.BOLD,40);
         
         gameplayLabel = new JLabel();
-        gameplayLabelString = "";
-        for(int i = 0; i < targetWord.length(); i++){
-            gameplayLabelString += " ";
-        }
         
         gameplayLabel.setAlignmentY(BOTTOM_ALIGNMENT);
         
         gameplayLabel.setFont(gameplayFont);
-        gameplayLabel.setText(gameplayLabelString);
         add(gameplayLabel);
         
         gameplayUnderline = new JLabel();
-        String underline = "";
-        for(int i = 0; i < targetWord.length(); i++){
-            underline += "-";
-        }
         
         gameplayLabel.setAlignmentY(TOP_ALIGNMENT);
         
         gameplayUnderline.setFont(gameplayFont);
-        gameplayUnderline.setText(underline);
         add(gameplayUnderline);
 
         add(Box.createRigidArea(new Dimension(0,5)));
@@ -144,9 +144,48 @@ class PlayScreen extends JPanel implements ActionListener{
         add(keyboard);
         Dimension size = keyboard.getPreferredSize();
         //keyboard.setBounds(-600,300,size.width,size.height);
-        keyboard.repaint();
+        restart();
+        
         repaint();
 
+    }
+    
+    private void restart() {
+        targetWord = chooseWord();
+        testAnswerDisplayer.setText("target word: " + targetWord);
+        
+        errors = 0;
+        chooseHangmanImage();
+        
+        gameplayLabelString = "";
+        for(int i = 0; i < targetWord.length(); i++){
+            gameplayLabelString += " ";
+        }
+        gameplayLabel.setText(gameplayLabelString);
+        
+        String underline = "";
+        for(int i = 0; i < targetWord.length(); i++){
+            underline += "-";
+        }
+        gameplayUnderline.setText(underline);
+        
+        keyboard.enableAll();
+        
+        currentScore = 100;
+    }
+    
+    private void endGame(int score) {
+        errors = 0;
+        backButton.setEnabled(false);
+        backButton.setVisible(false);
+        restartButton.setEnabled(false);
+        restartButton.setVisible(false);
+        setEnabled(false);
+        removeAll();
+        setLayout(new FlowLayout());
+        add(new GameOverScreen(score));
+        timeAndDateTimer.stop();
+        repaint();
     }
     
     // returns one of the specified words.
@@ -213,11 +252,11 @@ class PlayScreen extends JPanel implements ActionListener{
                     errors = 0;
                     backButton.setEnabled(false);
                     backButton.setVisible(false);
-                    testIncorrectButton.setEnabled(false);
-                    testIncorrectButton.setVisible(false);
+                    restartButton.setEnabled(false);
+                    restartButton.setVisible(false);
                     repaint();
                     setEnabled(false);
-                    add(new GameOverScreen());
+                    add(new GameOverScreen(0));
                     timeAndDateTimer.stop();          
                 break;
             default:
@@ -249,6 +288,26 @@ class PlayScreen extends JPanel implements ActionListener{
         }
         
         gameplayLabel.setText(gameplayLabelString);
+        
+        if(gameplayLabelString.equals(targetWord)) {
+            win();
+        }
+        
+        if(errors >= 6) {
+            lose();
+        }
+    }
+    
+    private void win() {
+        restartButton.setVisible(true);
+        skipButton.setVisible(false);
+        keyboard.disableAll();
+    }
+    
+    private void lose() {
+        restartButton.setVisible(true);
+        skipButton.setVisible(false);
+        keyboard.disableAll();
     }
     
     //action performed every second
@@ -305,5 +364,17 @@ class LetterUI extends JPanel {
     
     public JButton getButton(char letter) {
         return buttonArray[letter];
+    }
+    
+    public void disableAll() {
+        for(char i = 'a'; i <= 'z'; i++) {
+            getButton(i).setEnabled(false);
+        }
+    }
+    
+    public void enableAll() {
+        for(char i = 'a'; i <= 'z'; i++) {
+            getButton(i).setEnabled(true);
+        }
     }
 }

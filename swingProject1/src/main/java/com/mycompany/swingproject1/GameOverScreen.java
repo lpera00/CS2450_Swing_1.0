@@ -4,25 +4,30 @@
  */
 package com.mycompany.swingproject1;
 
-import java.awt.Button;
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  *
  * @author PK_Flunr
  */
 class GameOverScreen extends JPanel {
-    private Button backButton;
+    private JButton backButton;
+    private JLabel scoreLabel;
 
-    public GameOverScreen(){
+    public GameOverScreen(int score){
         setSize(600,400);
         setVisible(true);
+        setLayout(new FlowLayout());
+        
+        scoreLabel = new JLabel();
+        scoreLabel.setText("Score: " + Integer.toString(score));
+        add(scoreLabel);
+         
         //back button
-            backButton = new Button("end");
-            backButton.setBounds(475, 325, 100, 20);
+            backButton = new JButton("End");
             backButton.addActionListener(new ActionListener(){
                 public void actionPerformed(ActionEvent e){
                     backButton.setEnabled(false);
@@ -33,10 +38,7 @@ class GameOverScreen extends JPanel {
                 }
             });
             add(backButton);
-    }
-    
-    public void paintComponent(Graphics g){
-        g.drawString("game over screen", 250, 175);
+        repaint();
     }
 
 }
