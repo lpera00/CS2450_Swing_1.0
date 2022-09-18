@@ -46,6 +46,8 @@ class PlayScreen extends JPanel implements ActionListener{
     
     private JLabel gameplayUnderline;
     
+    private LetterUI keyboard;
+    
     
     private static BufferedImage hangmanImage = null;
 
@@ -73,6 +75,8 @@ class PlayScreen extends JPanel implements ActionListener{
                 backButton.setVisible(false);
                 testIncorrectButton.setEnabled(false);
                 testIncorrectButton.setVisible(false);
+                removeAll();
+                setLayout(new FlowLayout());
                 repaint();
                 setEnabled(false);
                 add(new MenuScreen());
@@ -116,8 +120,6 @@ class PlayScreen extends JPanel implements ActionListener{
             gameplayLabelString += " ";
         }
         
-        gameplayLabelString = targetWord; // temp
-        
         gameplayLabel.setAlignmentY(BOTTOM_ALIGNMENT);
         
         gameplayLabel.setFont(gameplayFont);
@@ -138,7 +140,7 @@ class PlayScreen extends JPanel implements ActionListener{
 
         add(Box.createRigidArea(new Dimension(0,5)));
         
-        LetterUI keyboard = new LetterUI();
+        keyboard = new LetterUI(this);
         add(keyboard);
         Dimension size = keyboard.getPreferredSize();
         //keyboard.setBounds(-600,300,size.width,size.height);
@@ -228,12 +230,38 @@ class PlayScreen extends JPanel implements ActionListener{
             repaint();
     }
     
+    private void tryLetter(char letter) {
+        boolean success = false;
+        char[] gameplayStringArray = gameplayLabelString.toCharArray();
+        
+        for (int i = 0; i < targetWord.length(); i++) {
+            if(targetWord.charAt(i) == letter) {
+                gameplayStringArray[i] = letter;
+                success = true;
+            }
+        }
+        
+        gameplayLabelString = String.valueOf(gameplayStringArray);
+        
+        if(!success) {
+            errors++;
+            chooseHangmanImage();
+        }
+        
+        gameplayLabel.setText(gameplayLabelString);
+    }
+    
     //action performed every second
     //redraws timer w/ current date and time
-    public void actionPerformed(ActionEvent e){
-            getCurrentDateAndTime();
-            repaint();
-            }
+    public void actionPerformed(ActionEvent e) {
+        if (e.getActionCommand() != null && "LetterButton".equals(e.getActionCommand().substring(1))) {
+            char letter = e.getActionCommand().charAt(0);
+            tryLetter(letter);
+            keyboard.getButton(letter).setEnabled(false);
+        }
+        getCurrentDateAndTime();
+        repaint();
+    }
     
     public void getCurrentDateAndTime(){
         Date date = new Date();
@@ -256,15 +284,26 @@ class PlayScreen extends JPanel implements ActionListener{
 }
 
 class LetterUI extends JPanel {
-    public LetterUI() {
+    private JButton[] buttonArray;
+    
+    public LetterUI(ActionListener parent) {
+        buttonArray = new JButton[123]; // this way, we can use chars to find individual buttons
+        
         setSize(600,150);
         // using GridLayout
         setLayout(new GridLayout(2,13));
         
         for(char i = 'a'; i <= 'z'; i++) {
             JButton newButton = new JButton("" + i);
-            
+            newButton.setActionCommand("" + i + "LetterButton");
+            newButton.addActionListener(parent);
             add(newButton);
+            
+            buttonArray[i] = newButton;
         }
+    }
+    
+    public JButton getButton(char letter) {
+        return buttonArray[letter];
     }
 }
