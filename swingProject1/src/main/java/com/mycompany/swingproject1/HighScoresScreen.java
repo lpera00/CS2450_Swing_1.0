@@ -53,3 +53,25 @@ class HighScoresScreen extends JPanel {
     }
 
 }
+
+class HighScore implements java.io.Serializable, Comparable<HighScore> {
+    final private String initials;
+    final private Integer score;
+    
+    public HighScore(String initials, int score) {
+        this.initials = initials;
+        this.score = score;
+    }
+    
+    public int getScore() {
+        return score;
+    }
+    
+    public String getInitials() {
+        return initials;
+    }
+    
+    @Override public int compareTo(HighScore other) {
+        return score.compareTo(other.score);
+    }
+}
