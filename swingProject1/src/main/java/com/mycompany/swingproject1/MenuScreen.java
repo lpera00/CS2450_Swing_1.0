@@ -5,10 +5,14 @@
 package com.mycompany.swingproject1;
 
 import java.awt.Button;
+import java.awt.CardLayout;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
+import java.io.*;
+import javax.imageio.*;
 
 /**
  *
@@ -20,10 +24,19 @@ class MenuScreen extends JPanel {
     private Button highScoresButton;
     private Button creditsButton;
     private String screenName = "";
+    public CardLayout cardLO;
+    public JPanel panel;
+    private BufferedImage pic = null;
 
-    public MenuScreen() {
+
+    public MenuScreen(CardLayout c, JPanel p) {
+        repaint();
+        setLayout(null);
         setSize(600, 400);
         setVisible(true);
+        setEnabled(true);
+        cardLO = c;
+        panel = p;
         //play button
         playButton = new Button("Play");
         playButton.setBounds(475, 275, 100, 20);
@@ -31,22 +44,20 @@ class MenuScreen extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 screenName = "Play";
                 disableButtons();
-                repaint();
                 setEnabled(false);
-                add(new PlayScreen());
+                cardLO.show(panel, "Play");
             }
         });
         add(playButton);
-        //HS button
+        //high scores button
         highScoresButton = new Button("High Scores");
         highScoresButton.setBounds(475, 300, 100, 20);
         highScoresButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 screenName = "High Scores";
                 disableButtons();
-                repaint();
                 setEnabled(false);
-                add(new HighScoresScreen());
+                cardLO.show(panel, "High Scores");
             }
         });
         add(highScoresButton);
@@ -57,12 +68,12 @@ class MenuScreen extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 screenName = "Credits";
                 disableButtons();
-                repaint();
                 setEnabled(false);
-                add(new CreditsScreen());
+                cardLO.show(panel, "Credits");
             }
         });
         add(creditsButton);
+        repaint();
     }
 
     public void disableButtons() {
@@ -73,8 +84,22 @@ class MenuScreen extends JPanel {
         creditsButton.setVisible(false);
         creditsButton.setEnabled(false);
     }
+    
+      public void enableButtons() {
+        playButton.setVisible(true);
+        playButton.setEnabled(true);
+        highScoresButton.setVisible(true);
+        highScoresButton.setEnabled(true);
+        creditsButton.setVisible(true);
+        creditsButton.setEnabled(true);
+    }
 
     public void paintComponent(Graphics g) {
-        g.drawString("menu", 265, 175);
+        super.paintComponent(g);
+        try{
+            pic = ImageIO.read(new File("src\\hangman_06.png")); //in documents
+        }catch(IOException e){}
+        g.drawImage(pic, 50, 50, 150, 150, this);
+        enableButtons();
     }
 }

@@ -29,7 +29,7 @@ class PlayScreen extends JPanel implements ActionListener{
     private String currentTime = "";
     //triggers the timer to update every second
     private Timer timeAndDateTimer = new Timer(1000, this);
-    private String targetWord = "";
+    private String targetWord = chooseWord();
     //errors = incorrect guesses
     private static int errors = 0;
     private JButton skipButton;
@@ -48,41 +48,46 @@ class PlayScreen extends JPanel implements ActionListener{
     
     private LetterUI keyboard;
     
-    private int currentScore;
+    public static int currentScore;
+    
+    public static boolean end = false;
     
     
     private static BufferedImage hangmanImage = null;
-
+    public CardLayout cardLO;
+    public JPanel panel;
     
-    public PlayScreen() {
+    public JLabel wrongLetterAlert;
+    
+    public PlayScreen(CardLayout c, JPanel p) {
         setSize(600, 400);
         setVisible(true);
+        setEnabled(true);
+        cardLO = c;
+        panel = p;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         timeAndDateTimer.start();
         timeAndDateTimer.setRepeats(true);
         errors = 0;
+        
         
         upperContainer = new JPanel();
         upperContainer.setVisible(true);
         upperContainer.setLayout(new FlowLayout());
         add(upperContainer);
         
+        
         //back button
         backButton = new JButton("back");
-        //backButton.setBounds(475, 325, 100, 20);
         backButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 errors = 0;
-                backButton.setEnabled(false);
-                backButton.setVisible(false);
-                restartButton.setEnabled(false);
-                restartButton.setVisible(false);
-                removeAll();
-                setLayout(new FlowLayout());
+                currentScore = 100;
+                targetWord = chooseWord();
+                restart();
                 repaint();
                 setEnabled(false);
-                add(new MenuScreen());
-                timeAndDateTimer.stop();
+                cardLO.show(panel, "Menu");
             }
         });
         upperContainer.add(backButton);
@@ -91,6 +96,8 @@ class PlayScreen extends JPanel implements ActionListener{
         skipButton = new JButton("Skip");
         skipButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                restart();
+                currentScore = 0;
                 endGame(0);
             }
         });
@@ -99,11 +106,13 @@ class PlayScreen extends JPanel implements ActionListener{
         //restart button
         restartButton = new JButton("Next");
         restartButton.setVisible(false);
-        //testIncorrectButton.setBounds(75, 325, 100, 20);
         restartButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //restart();
-                endGame(currentScore);
+                int score = currentScore;
+                restart();
+                keyboard.enableAll();
+                setScore(score);
+                endGame(score);
                 restartButton.setVisible(false);
             }
         });
@@ -116,7 +125,12 @@ class PlayScreen extends JPanel implements ActionListener{
         getCurrentDateAndTime();
         upperContainer.add(dateAndTimeDisplayer);
         
-
+        wrongLetterAlert = new JLabel();
+        wrongLetterAlert.setText("Letter not found!");
+        wrongLetterAlert.setForeground(Color.red);
+        wrongLetterAlert.setVisible(false);
+        upperContainer.add(wrongLetterAlert);
+        
         hangmanImageDisplayer = new JLabel();
         add(hangmanImageDisplayer);
         
@@ -143,16 +157,31 @@ class PlayScreen extends JPanel implements ActionListener{
         keyboard = new LetterUI(this);
         add(keyboard);
         Dimension size = keyboard.getPreferredSize();
-        //keyboard.setBounds(-600,300,size.width,size.height);
         restart();
         
         repaint();
 
     }
     
+    //resets game screen and variables between resets
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if(end == true){
+        wrongLetterAlert.setVisible(false);
+        currentScore = 100;
+        errors = 0;
+        keyboard.enableAll();
+        skipButton.setEnabled(true);        
+        skipButton.setVisible(true);
+        end = false;
+        }
+    }
+   
+    //resets game screen and variables
     private void restart() {
+        end = false;
+        wrongLetterAlert.setVisible(false);
         targetWord = chooseWord();
-        testAnswerDisplayer.setText("target word: " + targetWord);
         
         errors = 0;
         chooseHangmanImage();
@@ -174,18 +203,26 @@ class PlayScreen extends JPanel implements ActionListener{
         currentScore = 100;
     }
     
+    //ends game, shows game over screen, resets game screen
     private void endGame(int score) {
+        int savedScore = score;
         errors = 0;
-        backButton.setEnabled(false);
-        backButton.setVisible(false);
-        restartButton.setEnabled(false);
-        restartButton.setVisible(false);
+        wrongLetterAlert.setVisible(false);
+        targetWord = chooseWord();
         setEnabled(false);
-        removeAll();
-        setLayout(new FlowLayout());
-        add(new GameOverScreen(score));
-        timeAndDateTimer.stop();
+        System.out.println("current score: " + currentScore);
+        setScore(currentScore);
+        //cardLO.show(panel, "Game Over");        
+        cardLO.show(panel, "Color Game");
+        restart();
+        end = true;
         repaint();
+        setScore(savedScore);
+    }
+    
+    //sets value of current score
+    public void setScore(int score){
+        currentScore = score;
     }
     
     // returns one of the specified words.
@@ -209,55 +246,53 @@ class PlayScreen extends JPanel implements ActionListener{
             return "abstract";
     }
 }
-    
-    private void chooseHangmanImage(){
     //choose hangman image based on # of errors
+    private void chooseHangmanImage(){
             switch(errors){
             case 0:
+                currentScore = 100;
                 try{
                     hangmanImage = ImageIO.read(new File("src\\hangman_00.png"));
                 }catch(IOException e){}
                 break;
             case 1:
+                currentScore = 90;
                 try{
                     hangmanImage = ImageIO.read(new File("src\\hangman_01.png"));
                 }catch(IOException e){}            
                 break;
             case 2:
+                currentScore = 80;
                 try{
                     hangmanImage = ImageIO.read(new File("src\\hangman_02.png"));
                 }catch(IOException e){}            
                 break;
             case 3:
+                currentScore = 70;
                 try{
                     hangmanImage = ImageIO.read(new File("src\\hangman_03.png"));
                 }catch(IOException e){}            
                 break;
             case 4:
+                currentScore = 60;
                 try{
                     hangmanImage = ImageIO.read(new File("src\\hangman_04.png"));
                 }catch(IOException e){}            
                 break;
             case 5:
+                currentScore = 50;
                 try{
                     hangmanImage = ImageIO.read(new File("src\\hangman_05.png"));
                 }catch(IOException e){}            
                 break;
             case 6:
+                restart();
+                keyboard.enableAll();
+                currentScore = 40;
                 try{
                     hangmanImage = ImageIO.read(new File("src\\hangman_06.png"));
-                }catch(IOException e){}            
-                break;
-            case 7:
-                    errors = 0;
-                    backButton.setEnabled(false);
-                    backButton.setVisible(false);
-                    restartButton.setEnabled(false);
-                    restartButton.setVisible(false);
-                    repaint();
-                    setEnabled(false);
-                    add(new GameOverScreen(0));
-                    timeAndDateTimer.stop();          
+                }catch(IOException e){}        
+                endGame(currentScore);
                 break;
             default:
                 try{
@@ -277,6 +312,7 @@ class PlayScreen extends JPanel implements ActionListener{
             if(targetWord.charAt(i) == letter) {
                 gameplayStringArray[i] = letter;
                 success = true;
+                wrongLetterAlert.setVisible(false);
             }
         }
         
@@ -285,6 +321,7 @@ class PlayScreen extends JPanel implements ActionListener{
         if(!success) {
             errors++;
             chooseHangmanImage();
+            wrongLetterAlert.setVisible(true);
         }
         
         gameplayLabel.setText(gameplayLabelString);
@@ -311,7 +348,7 @@ class PlayScreen extends JPanel implements ActionListener{
     }
     
     //action performed every second
-    //redraws timer w/ current date and time
+    //redraws timer with current date and time
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand() != null && "LetterButton".equals(e.getActionCommand().substring(1))) {
             char letter = e.getActionCommand().charAt(0);

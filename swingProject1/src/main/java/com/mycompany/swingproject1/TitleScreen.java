@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import java.awt.*;
+
 
 /**
  *
@@ -17,24 +19,34 @@ import javax.swing.Timer;
 class TitleScreen extends JPanel implements ActionListener {
 
     private Timer screenTimer = new Timer(3000, this);
+    public CardLayout cardLO;
+    public JPanel panel;
 
-    public TitleScreen() {
+    public TitleScreen(CardLayout c, JPanel p) {
         //start 3 second timer
         screenTimer.start();
         screenTimer.setRepeats(false);
+        cardLO = c;
+        panel = p;
     }
-
+    
+    //switch to menu screen after 3 seconds
     public void actionPerformed(ActionEvent e) {
         screenTimer.stop();
-        repaint();
+        removeAll();
         setEnabled(false);
-        add(new MenuScreen());
+        switchScreens(cardLO, panel);
+    }
+    
+    public void switchScreens(CardLayout c, JPanel p){
+        c.show(p, "Menu");
     }
 
     public void paintComponent(Graphics g) { //most important method for custom graphics
         super.paintComponent(g);
         if (screenTimer.isRunning() == true) {
-            g.drawString("title", 275, 175);
+            g.drawString("CS2450 Swing Project 1.0", 220, 75);
+            g.drawString("By: Team ValPera", 245, 275);
         } else {
             g.dispose();
         }

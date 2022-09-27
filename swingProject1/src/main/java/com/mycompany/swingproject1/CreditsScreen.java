@@ -4,6 +4,11 @@
  */
 package com.mycompany.swingproject1;
 
+import java.awt.Button;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JPanel;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -16,11 +21,15 @@ class CreditsScreen extends JPanel {
     private JButton backButton;
     
     private JLabel creditsLabel;
+    public CardLayout cardLO;
+    public JPanel panel;
 
-    public CreditsScreen(){
+    public CreditsScreen(CardLayout c, JPanel p){
         setSize(600,400);
         setVisible(true);
-        
+        setEnabled(true);
+        cardLO = c;
+        panel = p;
         // label holding credits
         var creditsText = "<html>Credits:<br/>Miguel Valmonte 014714427<br/>Lindsey Pera 015215889</html>";
         creditsLabel = new JLabel(creditsText);
@@ -35,13 +44,20 @@ class CreditsScreen extends JPanel {
                 public void actionPerformed(ActionEvent e){
                     backButton.setEnabled(false);
                     backButton.setVisible(false);
-                    repaint();
-                    removeAll();
+                    //repaint();
+                    //removeAll();
                     setEnabled(false);
-                    add(new MenuScreen());
+                    cardLO.show(panel, "Menu");
+                    //add(new MenuScreen());
                 }
             });
             add(backButton);
+    }
+    
+     public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        backButton.setEnabled(true);
+        backButton.setVisible(true);
     }
 
 }
