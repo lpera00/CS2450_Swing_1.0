@@ -9,6 +9,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
+import java.util.ArrayList;
+import java.Collections.*;
 
 /**
  *
@@ -20,8 +22,12 @@ class GameOverScreen extends JPanel {
     public CardLayout cardLO;
     public JPanel panel;
     public int displayScore;
+    
+    private ArrayList<HighScore> highScoreList;
 
     public GameOverScreen(int score, CardLayout c, JPanel p){
+        highScoreList = HighScore.getHighScores();
+        
         setSize(600,400);
         setVisible(true);
         setLayout(new FlowLayout());
