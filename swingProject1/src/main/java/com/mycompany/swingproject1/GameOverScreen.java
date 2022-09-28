@@ -9,8 +9,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
+import javax.swing.text.*;
 import java.util.ArrayList;
-//import java.Collections.*;
+import java.Collections.*;
 import java.io.*;
 import java.util.*;
 
@@ -19,6 +20,7 @@ import java.util.*;
  * @author PK_Flunr
  */
 class GameOverScreen extends JPanel {
+
     private JButton backButton;
     private JLabel scoreLabel;
     public CardLayout cardLO;
@@ -27,16 +29,15 @@ class GameOverScreen extends JPanel {
     private JPanel initialsPanel;
     private JLabel initialsLabel;
     private JFormattedTextField inputInitials;
-    private JButton test;
     public String initials;
     private boolean validInitials;
-    
+
     private ArrayList<HighScore> highScoreList;
 
-    public GameOverScreen(int score, CardLayout c, JPanel p){
+    public GameOverScreen(CardLayout c, JPanel p) {
         highScoreList = HighScore.getHighScores();
-        
-        setSize(600,400);
+
+        setSize(600, 400);
         setVisible(true);
         setLayout(new FlowLayout());
         setEnabled(true);
@@ -44,102 +45,109 @@ class GameOverScreen extends JPanel {
         panel = p;
         displayScore = PlayScreen.currentScore;
         System.out.println("current score: " + currentScore);
-        score = PlayScreen.currentScore;
         scoreLabel = new JLabel();
-        scoreLabel.setText("Score: " + Integer.toString(score));
+        scoreLabel.setText("Score: " + Integer.toString(displayScore));
         add(scoreLabel);
         initials = "";
         validInitials = false;
-         
+
         //back button
-            backButton = new JButton("End");
-            backButton.addActionListener(new ActionListener(){
-                public void actionPerformed(ActionEvent e){
-                    backButton.setEnabled(false);
-                    backButton.setVisible(false);
-                    initialsPanel.setVisible(false);
-                    initialsPanel.setEnabled(false);
-                    test.setVisible(true);                    
-                    test.setEnabled(true);
-                    inputInitials.setEnabled(true);
-                    inputInitials.setText("");
-                    initialsLabel.setText("new high score! enter your initials to save:");
-                    setEnabled(false);
-                    initials = "";
-                    validInitials = false;
-                    cardLO.show(panel, "Menu");
+        backButton = new JButton("End");
+        backButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                backButton.setEnabled(false);
+                backButton.setVisible(false);
+                initialsPanel.setVisible(false);
+                initialsPanel.setEnabled(false);
+                inputInitials.setEnabled(true);
+                inputInitials.setText("");
+                initialsLabel.setText("new high score! enter your initials to save:");
+                setEnabled(false);
+                // set for next gameplay
+                
+                initials = "";
+                validInitials = false;
+                cardLO.show(panel, "Menu");
+            }
+        });
+        add(backButton);
+
+        //components for inputting initials
+        initialsPanel = new JPanel(new FlowLayout());
+        try {
+        inputInitials = new JFormattedTextField(new MaskFormatter("UUU"));
+        } catch(java.text.ParseException e) {
+            System.out.println("fuck it we ball");
+        }
+        inputInitials.setEnabled(true);
+        //inputInitials.setText("");
+        initialsLabel = new JLabel();
+        initialsLabel.setText("new high score! enter your initials to save:");
+        inputInitials.setColumns(3);
+        
+        initialsPanel.add(initialsLabel);
+        initialsPanel.add(inputInitials);
+        initialsPanel.setVisible(false);
+        initialsPanel.setEnabled(false);
+        
+        
+        inputInitials.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                initials = inputInitials.getText();
+                System.out.println(initials);
+                inputInitials.setEnabled(false);
+                initialsLabel.setText("Saved!");
+                // implement saving here
+                highScoreList.add(new HighScore(initials,displayScore));
+                Collections.sort(highScoreList,Collections.reverseOrder());
+                if(highScoreList.size() > 5) {
+                    highScoreList.remove(5);
                 }
-            });
-            add(backButton);
-            
-            //components for inputting initials
-            initialsPanel = new JPanel(new FlowLayout());
-            inputInitials = new JFormattedTextField();
-            inputInitials.setEnabled(true);
-            inputInitials.setText("");
-            initialsLabel = new JLabel();
-            initialsLabel.setText("new high score! enter your initials to save:");
-            inputInitials.setColumns(3);
-            initialsPanel.add(initialsLabel);
-            initialsPanel.add(inputInitials);
-            initialsPanel.setVisible(false);
-            initialsPanel.setEnabled(false);
-            //test button to make high score section appear
-            //will be removed once reading saved scores is implemented
-            test = new JButton("test new high score");
-            test.addActionListener(new ActionListener(){
-                public void actionPerformed(ActionEvent e){
-                    initialsPanel.setVisible(true);
-                    initialsPanel.setEnabled(true);
-                    test.setVisible(false);                    
-                    test.setEnabled(false);
-                    repaint();                
-                    }
-                });
-            inputInitials.addActionListener(new ActionListener(){
-                public void actionPerformed(ActionEvent e){
-                    initials = inputInitials.getText();
-                    validInitials = checkInitials(initials);
-                    if(validInitials == true){
-                        initials = initials.toUpperCase();
-                        //saving score/initials to file
-                        //to be implemented here
-                        initialsLabel.setText("score saved");
-                        inputInitials.setEnabled(false);
-                    }
-                    else{
-                        inputInitials.setText("");
-                        initialsLabel.setText("invalid input, try again:");
-                    }
-                }
-            });
-            add(test);
-            add(initialsPanel);
+                HighScore.setHighScores(highScoreList);
+            }
+        });
+        //add(test);
+        add(initialsPanel);
     }
     
-    public boolean checkInitials(String input){
-        //checks if each char is not an upper or lower case letter
-        for(int i = 0; i < input.length(); i++){
-            if((int)input.charAt(i) < 65){
-                return false;
+    
+    public void checkIfHighScore() {
+        // to determine if our score is a high score, we either check if
+        // the high score list is smaller than 5, or if it's 5, check the
+        // 5th best score and check if it's larger
+        if(highScoreList.size() < 5) {
+            makeHighScoreSectionVisible();
+        }
+        else {
+            int leastBestScore = highScoreList.get(4).getScore();
+            if(leastBestScore < displayScore) {
+                makeHighScoreSectionVisible();
             }
-            else if((int)input.charAt(i) > 90 && (int)input.charAt(i) < 97){
-                return false;
-            }
-            else if((int)input.charAt(i) > 122){
-                return false;
+            else {
+                makeHighScoreSectionInvisible();
             }
         }
-        return true;
+    }
+    
+    private void makeHighScoreSectionVisible() {
+        initialsPanel.setVisible(true);
+        initialsPanel.setEnabled(true);
+    }
+
+    private void makeHighScoreSectionInvisible() {
+        initialsPanel.setVisible(false);
+        initialsPanel.setEnabled(false);
     }
     
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         displayScore = PlayScreen.currentScore;
-        System.out.println("displayscore:"+displayScore);
+        System.out.println("displayscore:" + displayScore);
         scoreLabel.setText("Score: " + Integer.toString(displayScore));
         backButton.setEnabled(true);
         backButton.setVisible(true);
+        
+        checkIfHighScore();
     }
 
 }

@@ -80,6 +80,15 @@ class HighScoresScreen extends JPanel {
         backButton.setVisible(true);
         
         for(int i = 0; i < 5; i++) {
+            if(scoreList.size() < i + 1) {
+                scoreLabels[i].setText("Name: N/A Score: 000");
+            }
+            // if the score exists...
+            else {
+                HighScore targetScore = scoreList.get(i);
+                assert(targetScore != null);
+                scoreLabels[i].setText("Name: " + targetScore.getInitials() + " Score: " + targetScore.getScore());
+            }
             scoreLabels[i].setEnabled(true);
             scoreLabels[i].setVisible(true);
         }
@@ -116,6 +125,7 @@ class HighScore implements java.io.Serializable, Comparable<HighScore> {
             ArrayList<HighScore> emptyList = new ArrayList<HighScore>();
             
             setHighScores(emptyList);
+            System.out.println("new high score list created!");
         }
         
         // deserialize high score file

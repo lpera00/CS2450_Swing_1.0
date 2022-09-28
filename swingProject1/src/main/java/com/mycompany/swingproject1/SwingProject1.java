@@ -23,7 +23,7 @@ public class SwingProject1 {
         JPanel colorGame = new ColorGameScreen(cardLO, cards);        
         JPanel highScores = new HighScoresScreen(cardLO, cards);
         JPanel credits = new CreditsScreen(cardLO, cards);        
-        JPanel gameOver = new GameOverScreen(0, cardLO, cards);
+        JPanel gameOver = new GameOverScreen(cardLO, cards);
         cards.add(title, "Title");        
         cards.add(menu, "Menu");
         cards.add(play, "Play");        
