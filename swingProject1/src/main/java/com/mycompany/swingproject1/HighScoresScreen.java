@@ -79,6 +79,7 @@ class HighScoresScreen extends JPanel {
         backButton.setEnabled(true);
         backButton.setVisible(true);
         
+        scoreList = HighScore.getHighScores();
         for(int i = 0; i < 5; i++) {
             if(scoreList.size() < i + 1) {
                 scoreLabels[i].setText("Name: N/A Score: 000");
