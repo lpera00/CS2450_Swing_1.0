@@ -341,6 +341,7 @@ class PlayScreen extends JPanel implements ActionListener{
         restartButton.setVisible(true);
         skipButton.setVisible(false);
         keyboard.disableAll();
+        endGame(currentScore);
     }
     
     private void lose() {
