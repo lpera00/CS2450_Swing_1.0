@@ -4,6 +4,8 @@
  */
 package com.mycompany.swingproject1;
 
+import static com.mycompany.swingproject1.PlayScreen.currentScore;
+import static com.mycompany.swingproject1.PlayScreen.end;
 import java.awt.CardLayout;
 import java.awt.Graphics;
 import javax.swing.JPanel;
@@ -28,17 +30,41 @@ import javax.swing.text.MaskFormatter;
 public class SudokuScreen extends JPanel implements ActionListener{
     private JButton quit;
     private JButton submit;
+    private JLabel feedbackLabel;
     public CardLayout cardLO;
     public JPanel panel;
     private JFormattedTextField inputs[];
-    private JPanel gridPanel;
+    private SudokuGrid gridPanel;
     private JFormattedTextField gridSquare;
     private String currentDate = "";
     private String currentTime = "";
     private JLabel dateAndTimeDisplayer;
     private Timer timeAndDateTimer;
 
-
+    // solution of the puzzle we are asked to implement
+    private static final int SOLUTION[][] = {
+        {8, 3, 5, 4, 1, 6, 9, 2, 7},
+        {2, 9, 6, 8, 5, 7, 4, 3, 1},
+        {4, 1, 7, 2, 9, 3, 6, 5, 8},
+        {5, 6, 9, 1, 3, 4, 7, 8, 2},
+        {1, 2, 3, 6, 7, 8, 5, 4, 9},
+        {7, 4, 8, 5, 2, 9, 1, 6, 3},
+        {6, 5, 2, 7, 8, 1, 3, 9, 4},
+        {9, 8, 1, 3, 4, 5, 2, 7, 6},
+        {3, 7, 4, 9, 6, 2, 8, 1, 5},
+    };
+    // array of x,y positions of numbers to be given at beginning of puzzle
+    private static final int GIVEN_POSITIONS[][] = {
+        {0,0},{0,3},{0,5},{0,8},
+        {1,6},
+        {2,1},{2,6},{2,7},
+        {3,0},{3,2},{3,4},{3,6},{3,7},
+        {4,4},
+        {5,1},{5,2},{5,4},{5,6},{5,8},
+        {6,1},{6,2},{6,7},
+        {7,2},
+        {8,0},{8,3},{8,5},{8,8},
+    };
     
     public SudokuScreen(CardLayout c, JPanel p){
         setLayout(null);
@@ -57,10 +83,8 @@ public class SudokuScreen extends JPanel implements ActionListener{
         timeAndDateTimer.setRepeats(true);  
         add(dateAndTimeDisplayer);
         
-        //initialize solution array
-        int soluiton[] = {3,5,9,2,2,9,6,8,5,7,3,1,4,7,2,9,3,8,6,1,4,2,1,2,3,
-        6,8,5,4,9,7,5,9,6,6,7,8,1,3,4,9,8,3,4,5,2,7,6,7,4,6,8,1};
         
+        /*
         //create grid of text fields
         inputs = new JFormattedTextField[81];
         gridPanel = new JPanel(new GridLayout(9,9));
@@ -168,10 +192,17 @@ public class SudokuScreen extends JPanel implements ActionListener{
         }
         //gridPanel is the panel displaying the textfields
         //basically acts as the sudoku grid
+        */
+        gridPanel = new SudokuGrid(SOLUTION,GIVEN_POSITIONS);
         gridPanel.setBounds(140, 20, 300, 340);
         gridPanel.setVisible(true);
         gridPanel.setEnabled(true);
         add(gridPanel);
+        
+        feedbackLabel = new JLabel();
+        feedbackLabel.setBounds(25, 250, 100, 100);
+        feedbackLabel.setVisible(true);
+        add(feedbackLabel);
         
         //quit button
         quit = new JButton("quit");
@@ -186,13 +217,27 @@ public class SudokuScreen extends JPanel implements ActionListener{
         add(quit);
         
         //submit button
-        //doesn't check anything yet
-        //just skips to the game over screen
         submit = new JButton("submit");
         submit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                setEnabled(false);
-                cardLO.show(panel, "Game Over");
+                int verified = gridPanel.verify();
+                switch (verified) {
+                    case 1: // correct answer
+                        int sudokuScore = 540 - gridPanel.getNumberOfFails() * 10;
+                        currentScore += sudokuScore;
+                        // reset game
+                        gridPanel.initializeGame();
+                        // scene transition
+                        setEnabled(false);
+                        cardLO.show(panel, "Game Over");
+                        break;
+                    case 0: // incorrect answer
+                        // scoring feedback handled elsewhere
+                        feedbackLabel.setText("Try again!");
+                        break;
+                    default: // invalid answer
+                        feedbackLabel.setText("Invalid input!");
+                }
             }
         });
         submit.setBounds(15, 325, 100, 20);
@@ -221,5 +266,103 @@ public class SudokuScreen extends JPanel implements ActionListener{
     
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+    }
+}
+
+class SudokuGrid extends JPanel {
+    private int[][] solutionArray; // holds this SudokuGrid's solution
+    private int[][] givenArray; // holds what this SudokuGrid will initially display
+    private JFormattedTextField[][] inputFields; // array of the JTextFields forming this grid
+    private Boolean[][] markedWrong; // array of booleans that are true if the grid at x,y has attempted to have been submitted with a wrong answer
+    
+    public SudokuGrid(int[][]solutionArray,int[][]givenArray){
+        // copy solution arrays into this class' fields
+        this.solutionArray = solutionArray;
+        this.givenArray = givenArray;
+        
+        // set up layout and the array for the fields to be the right length
+        inputFields = new JFormattedTextField[solutionArray.length][solutionArray[0].length];
+        this.setLayout(new GridLayout(solutionArray.length,solutionArray[0].length));
+        
+        initializeGame();
+    }
+    
+    // public method to check if sudoku is solved; returns 1 if solved, 0 if not solved, and -1 for invalid input
+    public int verify() {
+        Boolean failed = false;
+        Boolean[][]originalWrongArray = markedWrong;
+        for(int row = 0; row < inputFields.length; row++) {
+            for(int col = 0; col < inputFields[0].length; col++) {
+                try {
+                    int input = Integer.parseInt(inputFields[row][col].getText());
+                    if (input < 1 || input > 9) {
+                        markedWrong = originalWrongArray;
+                        return -1; // ensure input is a number betwen 1 and 9; if not, input invalid
+                    }
+                    // wrong answer
+                    else if (input != solutionArray[row][col]) {
+                        failed = true;
+                        markedWrong[row][col] = true;
+                    }
+                } catch (NumberFormatException n) {
+                    markedWrong = originalWrongArray;
+                    return -1; // if any inputs don't have a number, return invalid input
+                }
+            }
+        }
+        if(failed) return 0;
+        else return 1;
+    }
+    
+    public int getNumberOfFails() {
+        int counter = 0;
+        for(Boolean[]row:markedWrong) {
+            for(Boolean wrong:row) {
+                if(wrong) counter++;
+            }
+        }
+        return counter;
+    }
+    
+    public void initializeGame() {
+        for(int row = 0; row < inputFields.length; row++) {
+            for(int col = 0; col < inputFields[0].length; col++) {
+                JFormattedTextField gridSquare;
+                try {
+                    // assumes all grid squares are on unless turned off in next for loop
+                    gridSquare = new JFormattedTextField(new MaskFormatter("#"));
+                    gridSquare.setToolTipText("Enter a number between 1-9");
+                    gridSquare.setEnabled(true);
+                    gridSquare.setDisabledTextColor(Color.black);
+                    
+                    this.add(gridSquare);
+                    inputFields[row][col] = gridSquare;
+                    
+                } catch (java.text.ParseException e) {
+                    System.out.println("sudoku textfield error");
+                }
+            }
+        }
+        // now we have a grid of blank text fields
+        // this next for-each loop will place the given numbers on the grid (and disable editing them)
+        for(int[] coord: this.givenArray) {
+            // readability assignments
+            int x = coord[0];
+            int y = coord[1];
+            
+            JFormattedTextField targetGridSquare = inputFields[x][y];
+            assert(targetGridSquare != null);
+            targetGridSquare.setEnabled(false);
+            targetGridSquare.setToolTipText(null);
+            targetGridSquare.setText("" + solutionArray[x][y]);
+        }
+        // assume answers are right until marked wrong
+        // initialize markedWrong array and fill with falses
+        markedWrong = new Boolean[inputFields.length][inputFields[0].length];
+        for(int row = 0; row < markedWrong.length; row++) {
+            for(int col = 0; col < markedWrong[row].length; col++) {
+                markedWrong[row][col] = false;
+            }
+        }
     }
 }
