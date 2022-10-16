@@ -284,7 +284,47 @@ class SudokuGrid extends JPanel {
         inputFields = new JFormattedTextField[solutionArray.length][solutionArray[0].length];
         this.setLayout(new GridLayout(solutionArray.length,solutionArray[0].length));
         
-        initializeGame();
+        for(int row = 0; row < inputFields.length; row++) {
+            for(int col = 0; col < inputFields[0].length; col++) {
+                JFormattedTextField gridSquare;
+                try {
+                    // assumes all grid squares are on unless turned off in next for loop
+                    gridSquare = new JFormattedTextField(new MaskFormatter("#"));
+                    gridSquare.setToolTipText("Enter a number between 1-9");
+                    gridSquare.setEnabled(true);
+                    gridSquare.setDisabledTextColor(Color.black);
+                    
+                    this.add(gridSquare);
+                    inputFields[row][col] = gridSquare;
+                    
+                } catch (java.text.ParseException e) {
+                    System.out.println("sudoku textfield error");
+                }
+            }
+        }
+        // now we have a grid of blank text fields
+        // this next for-each loop will place the given numbers on the grid (and disable editing them)
+        for(int[] coord: this.givenArray) {
+            // readability assignments
+            int x = coord[0];
+            int y = coord[1];
+            
+            JFormattedTextField targetGridSquare = inputFields[x][y];
+            assert(targetGridSquare != null);
+            targetGridSquare.setEnabled(false);
+            targetGridSquare.setToolTipText(null);
+            targetGridSquare.setText("" + solutionArray[x][y]);
+        }
+        // assume answers are right until marked wrong
+        // initialize markedWrong array and fill with falses
+        markedWrong = new Boolean[inputFields.length][inputFields[0].length];
+        for(int row = 0; row < markedWrong.length; row++) {
+            for(int col = 0; col < markedWrong[row].length; col++) {
+                markedWrong[row][col] = false;
+            }
+        }
+        
+        //initializeGame();
     }
     
     // public method to check if sudoku is solved; returns 1 if solved, 0 if not solved, and -1 for invalid input
