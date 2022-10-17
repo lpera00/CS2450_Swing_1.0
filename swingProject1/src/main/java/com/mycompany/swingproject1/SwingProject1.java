@@ -61,7 +61,7 @@ public class SwingProject1 {
                         JOptionPane.PLAIN_MESSAGE);
             }
         };
-        cards.getInputMap().put(KeyStroke.getKeyStroke("1"), "creditsDialog");
+        cards.getInputMap().put(KeyStroke.getKeyStroke("F1"), "creditsDialog");
         cards.getActionMap().put("creditsDialog", creditsDialog);
     }
     

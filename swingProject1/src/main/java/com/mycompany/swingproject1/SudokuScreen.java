@@ -208,6 +208,14 @@ public class SudokuScreen extends JPanel implements ActionListener{
         quit = new JButton("quit");
         quit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                remove(gridPanel);
+                gridPanel = new SudokuGrid(SOLUTION,GIVEN_POSITIONS);
+                gridPanel.setBounds(140, 20, 300, 340);
+                gridPanel.setVisible(true);
+                gridPanel.setEnabled(true);
+                add(gridPanel);
+                //gridPanel.initializeGame();
+                repaint();
                 setEnabled(false);
                 cardLO.show(panel, "Game Over");
             }
@@ -226,7 +234,14 @@ public class SudokuScreen extends JPanel implements ActionListener{
                         int sudokuScore = 540 - gridPanel.getNumberOfFails() * 10;
                         currentScore += sudokuScore;
                         // reset game
-                        gridPanel.initializeGame();
+                        remove(gridPanel);
+                        gridPanel = new SudokuGrid(SOLUTION,GIVEN_POSITIONS);
+                        gridPanel.setBounds(140, 20, 300, 340);
+                        gridPanel.setVisible(true);
+                        gridPanel.setEnabled(true);
+                        add(gridPanel);
+                        //gridPanel.initializeGame();
+                        repaint();
                         // scene transition
                         setEnabled(false);
                         cardLO.show(panel, "Game Over");
