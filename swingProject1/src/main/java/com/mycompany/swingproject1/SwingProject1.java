@@ -46,6 +46,7 @@ public class SwingProject1 {
         Action closeWindow = new AbstractAction(){
         public void actionPerformed(ActionEvent e){
             frame.dispose();
+            System.exit(0);
             }
         };
         cards.getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "closeWindow");

@@ -118,7 +118,8 @@ class PlayScreen extends JPanel implements ActionListener{
                 restartButton.setVisible(false);
             }
         });
-        upperContainer.add(restartButton);
+        //upperContainer.add(restartButton);
+        
         
         testAnswerDisplayer = new JLabel();
         upperContainer.add(testAnswerDisplayer);
