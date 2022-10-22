@@ -7,6 +7,8 @@ package com.mycompany.swingproject1;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import javax.swing.KeyStroke;
+
 
 
 /**
@@ -26,6 +28,7 @@ public class SwingProject1 {
         JPanel highScores = new HighScoresScreen(cardLO, cards);
         JPanel credits = new CreditsScreen(cardLO, cards);        
         JPanel gameOver = new GameOverScreen(cardLO, cards);
+        JPanel pong = new PongScreen(cardLO, cards);
         cards.add(title, "Title");        
         cards.add(menu, "Menu");
         cards.add(play, "Play");        
@@ -34,6 +37,7 @@ public class SwingProject1 {
         cards.add(highScores, "High Scores");
         cards.add(credits, "Credits");        
         cards.add(gameOver, "Game Over");
+        cards.add(pong, "Pong");
         JFrame frame = new JFrame("Swing Project 1.0");
         Container pane = frame.getContentPane();
         pane.add(cards);
@@ -43,6 +47,7 @@ public class SwingProject1 {
         frame.setSize(600, 400);
         frame.setLocationRelativeTo(null); //centers window
         frame.setVisible(true);
+        //keybinding for closeing the window at any time
         Action closeWindow = new AbstractAction(){
         public void actionPerformed(ActionEvent e){
             frame.dispose();
@@ -51,6 +56,7 @@ public class SwingProject1 {
         };
         cards.getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "closeWindow");
         cards.getActionMap().put("closeWindow", closeWindow);
+        //keybinding for showing the F1 credits dialog at any time
         Action creditsDialog = new AbstractAction(){
         public void actionPerformed(ActionEvent e){
                 JOptionPane.showMessageDialog(frame, 
@@ -64,6 +70,7 @@ public class SwingProject1 {
         };
         cards.getInputMap().put(KeyStroke.getKeyStroke("F1"), "creditsDialog");
         cards.getActionMap().put("creditsDialog", creditsDialog);
+        
     }
     
      

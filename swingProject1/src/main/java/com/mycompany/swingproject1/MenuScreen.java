@@ -26,6 +26,7 @@ class MenuScreen extends JPanel {
     private JButton playButton;
     private JButton highScoresButton;
     private JButton creditsButton;
+    private JButton pongButton;
     private String screenName = "";
     public CardLayout cardLO;
     public JPanel panel;
@@ -40,6 +41,19 @@ class MenuScreen extends JPanel {
         setEnabled(true);
         cardLO = c;
         panel = p;
+        //play button
+        pongButton = new JButton("Play Pong");
+        pongButton.setToolTipText("Play pong");
+        pongButton.setBounds(450, 250, 120, 20);
+        pongButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                screenName = "Pong";
+                disableButtons();
+                setEnabled(false);
+                cardLO.show(panel, "Pong");
+            }
+        });
+        add(pongButton);
         //play button
         playButton = new JButton("Play");
         playButton.setToolTipText("Play games");
