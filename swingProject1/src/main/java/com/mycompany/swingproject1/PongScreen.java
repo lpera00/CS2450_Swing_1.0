@@ -129,11 +129,15 @@ public class PongScreen extends JPanel implements ActionListener{
         pongPanel.add(pongBall);
         pongBall.recenter();
         
+        pongBall.setP1Hitbox(p1Paddle.getBounds());
+        pongBall.setP2Hitbox(p2Paddle.getBounds());
+        
         //quit button
         quit = new JButton("quit");
         quit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 resetBoard();
+                pongBall.recenter();
                 acceptInput = false;
                 repaint();
                 setEnabled(false);
@@ -222,6 +226,7 @@ public class PongScreen extends JPanel implements ActionListener{
         p1Paddle.setBackground(Color.white);
         pongPanel.add(p1Paddle);
         add(pongPanel);
+        pongBall.setP1Hitbox(p1Paddle.getBounds());
         repaint();
     }
     
@@ -245,6 +250,7 @@ public class PongScreen extends JPanel implements ActionListener{
         p2Paddle.setBackground(Color.white);
         pongPanel.add(p2Paddle);
         add(pongPanel);
+        pongBall.setP2Hitbox(p2Paddle.getBounds());
         repaint();
     }
         
@@ -269,6 +275,8 @@ public class PongScreen extends JPanel implements ActionListener{
         // temp..?
         pongBall.recenter();
         pongBall.start();
+        pongBall.setP1Hitbox(p1Paddle.getBounds());
+        pongBall.setP2Hitbox(p2Paddle.getBounds());
         add(pongPanel);
         repaint();
         if(acceptInput == false){
@@ -311,6 +319,9 @@ class Ball extends JPanel implements ActionListener {
     private static final int MILLISECONDS_PER_SECOND = 1000; // avoid magic numbers
     private int delta;
     private Timer gameLoopTimer;
+    
+    private Rectangle p1Hitbox;
+    private Rectangle p2Hitbox;
     
     private Boolean active;
     
@@ -358,12 +369,20 @@ class Ball extends JPanel implements ActionListener {
         active = true;
     }
     
+    public void setP1Hitbox(Rectangle hitbox) {
+        p1Hitbox = hitbox;
+    }
+    
+    public void setP2Hitbox(Rectangle hitbox) {
+        p2Hitbox = hitbox;
+    }
+    
     // called once per frame
     private void gameLoop() {
         // ball movement handled here
         if(active) {
             // oh god oh fuck
-            // these lines of code are compact but really unreadable
+            // these next 2 lines of code are compact but really unreadable
             // for each of the x and y components, the position is moved along the movement vector
             // the speed is given in pixels/second, so frames/second value is used to
             // convert that value into pixels/frame, as this function is called once/frame
@@ -371,6 +390,20 @@ class Ball extends JPanel implements ActionListener {
             current_y = clamp(0,(int)(current_y + current_direction_y * SPEED / FRAMES_PER_SECOND),GAME_WINDOW_HEIGHT - BALL_SIDE_LENGTH);
             // then the new x and y values are applied to the actual component
             setBounds(current_x,current_y,BALL_SIDE_LENGTH,BALL_SIDE_LENGTH);
+            
+            //bouncing
+            //vertical bounce
+            if(current_y == 0 || current_y == GAME_WINDOW_HEIGHT - BALL_SIDE_LENGTH) {
+                current_direction_y *= -1;
+            }
+            //p1 horizontal bounce
+            if(p1Hitbox != null && getBounds().intersects(p1Hitbox.getBounds())) {
+                current_direction_x = Math.abs(current_direction_x);
+            }
+            //p2 horizontal bounce
+            if(p2Hitbox != null && getBounds().intersects(p2Hitbox.getBounds())) {
+                current_direction_x = -1 * Math.abs(current_direction_x);
+            }
         }
     }
     
