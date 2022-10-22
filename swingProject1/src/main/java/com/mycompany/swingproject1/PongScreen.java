@@ -27,6 +27,7 @@ public class PongScreen extends JPanel implements ActionListener{
     private JPanel pongPanel;
     private JPanel p1Paddle;
     private JPanel p2Paddle;
+    private Ball pongBall;
     private String currentDate = "";
     private String currentTime = "";
     private JLabel dateAndTimeDisplayer;
@@ -122,6 +123,11 @@ public class PongScreen extends JPanel implements ActionListener{
         p2Paddle.setBackground(Color.white);
         pongPanel.add(p2Paddle);
         
+        // pong ball
+        pongBall = new Ball();
+        pongBall.setBackground(Color.white);
+        pongPanel.add(pongBall);
+        pongBall.recenter();
         
         //quit button
         quit = new JButton("quit");
@@ -260,6 +266,9 @@ public class PongScreen extends JPanel implements ActionListener{
         p2Paddle.setBackground(Color.white);
         pongPanel.add(p1Paddle);        
         pongPanel.add(p2Paddle);
+        // temp..?
+        pongBall.recenter();
+        pongBall.start();
         add(pongPanel);
         repaint();
         if(acceptInput == false){
@@ -289,4 +298,87 @@ public class PongScreen extends JPanel implements ActionListener{
         super.paintComponent(g);
     }
 
+}
+
+// fuck it we ball
+class Ball extends JPanel implements ActionListener {
+    public static final int GAME_WINDOW_WIDTH = 300;
+    public static final int GAME_WINDOW_HEIGHT = 275;
+    
+    private static final int BALL_SIDE_LENGTH = 10; //"ball" is square with this side length
+    
+    private static final int FRAMES_PER_SECOND = 40;
+    private static final int MILLISECONDS_PER_SECOND = 1000; // avoid magic numbers
+    private int delta;
+    private Timer gameLoopTimer;
+    
+    private Boolean active;
+    
+    private int current_x;
+    private int current_y;
+    
+    private static final double SPEED = 90; // in pixels/sec
+    // vertical and horizontal components of normalized direction vector
+    private double current_direction_x;
+    private double current_direction_y;
+    
+    public Ball(){
+        delta = MILLISECONDS_PER_SECOND / FRAMES_PER_SECOND;
+        gameLoopTimer = new Timer(delta, this);
+        gameLoopTimer.setActionCommand("gameTick");
+        gameLoopTimer.start();
+        gameLoopTimer.setRepeats(true);
+        
+        active = false;
+    }
+    
+    // implementation of simple int clamp for keeping ball in bounds
+    public static int clamp(int minim, int value, int maxim) {
+        return Math.max(minim,Math.min(maxim, value));
+    }
+    
+    public void recenter() {
+        // ball will not move
+        active = false;
+        // set start position
+        current_x = GAME_WINDOW_WIDTH / 2 - BALL_SIDE_LENGTH / 2;
+        current_y = GAME_WINDOW_HEIGHT / 2 - BALL_SIDE_LENGTH / 2;
+        // place ball
+        setBounds(current_x,current_y,BALL_SIDE_LENGTH,BALL_SIDE_LENGTH);
+    }
+    
+    public void start() {
+        // this gross line of code gets a random angle in rad between -pi and pi
+        double randomAngle = ((Math.random() * (2 * Math.PI)) - Math.PI);
+        // then set direction vectors to their new value
+        current_direction_x = Math.cos(randomAngle);
+        current_direction_y = Math.sin(randomAngle);
+        
+        // free the ball
+        active = true;
+    }
+    
+    // called once per frame
+    private void gameLoop() {
+        // ball movement handled here
+        if(active) {
+            // oh god oh fuck
+            // these lines of code are compact but really unreadable
+            // for each of the x and y components, the position is moved along the movement vector
+            // the speed is given in pixels/second, so frames/second value is used to
+            // convert that value into pixels/frame, as this function is called once/frame
+            current_x = clamp(0,(int)(current_x + current_direction_x * SPEED / FRAMES_PER_SECOND),GAME_WINDOW_WIDTH - BALL_SIDE_LENGTH);
+            current_y = clamp(0,(int)(current_y + current_direction_y * SPEED / FRAMES_PER_SECOND),GAME_WINDOW_HEIGHT - BALL_SIDE_LENGTH);
+            // then the new x and y values are applied to the actual component
+            setBounds(current_x,current_y,BALL_SIDE_LENGTH,BALL_SIDE_LENGTH);
+        }
+    }
+    
+    @Override public void actionPerformed(ActionEvent evt) {
+        if (evt.getActionCommand() != null) {
+            if (evt.getActionCommand().equals("gameTick")) {
+                this.gameLoop();
+            }
+        }
+    }
 }
