@@ -25,8 +25,8 @@ public class PongScreen extends JPanel implements ActionListener{
     public CardLayout cardLO;
     public JPanel panel;
     private JPanel pongPanel;
-    private JPanel p1Paddle;
-    private JPanel p2Paddle;
+    public static JPanel p1Paddle;
+    public static JPanel p2Paddle;
     private Ball pongBall;
     private String currentDate = "";
     private String currentTime = "";
@@ -34,12 +34,12 @@ public class PongScreen extends JPanel implements ActionListener{
     private JLabel title;
     private JLabel p1Label;
     private JLabel p2Label;
-    private JLabel p1ScoreLabel;
-    private JLabel p2ScoreLabel;
-    private int p1Score;
-    private int p2Score;
+    public static JLabel p1ScoreLabel;
+    public static JLabel p2ScoreLabel;
+    public static int p1Score;
+    public static int p2Score;
     private JButton quit;
-    private boolean acceptInput;
+    public static boolean acceptInput;
 
     private Timer timeAndDateTimer;
 
@@ -52,6 +52,8 @@ public class PongScreen extends JPanel implements ActionListener{
         cardLO = c;
         panel = p;
         acceptInput = false;
+        p1Score = 0;
+        p2Score = 0;
         
         //time and date
         dateAndTimeDisplayer = new JLabel();
@@ -139,6 +141,10 @@ public class PongScreen extends JPanel implements ActionListener{
                 resetBoard();
                 pongBall.recenter();
                 acceptInput = false;
+                p1Score = 0;
+                p2Score = 0;
+                p1ScoreLabel.setText(Integer.toString(p1Score));                
+                p2ScoreLabel.setText(Integer.toString(p2Score));
                 repaint();
                 setEnabled(false);
                 cardLO.show(panel, "Menu");
@@ -148,11 +154,11 @@ public class PongScreen extends JPanel implements ActionListener{
         quit.setToolTipText("Return to menu screen");
         add(quit);
         
+        
         //controls for pong
         //reset board and toggle accepting input
         Action reset = new AbstractAction(){
         public void actionPerformed(ActionEvent e){
-            System.out.println("reset");
             resetBoard();
           }
         };
@@ -163,7 +169,6 @@ public class PongScreen extends JPanel implements ActionListener{
         //player 1
         Action moveP1Up = new AbstractAction(){
         public void actionPerformed(ActionEvent e){
-            System.out.println("moveP1Up");
             if(acceptInput == true){
             movePlayer1(-5);
             }
@@ -173,7 +178,6 @@ public class PongScreen extends JPanel implements ActionListener{
         panel.getActionMap().put("moveP1Up", moveP1Up);
         Action moveP1Down = new AbstractAction(){
         public void actionPerformed(ActionEvent e){
-            System.out.println("moveP1Down");
             if(acceptInput == true){
             movePlayer1(5);
             }
@@ -184,7 +188,6 @@ public class PongScreen extends JPanel implements ActionListener{
         //player 2
         Action moveP2Up = new AbstractAction(){
         public void actionPerformed(ActionEvent e){
-            System.out.println("moveP2Up");
             if(acceptInput == true){
             movePlayer2(-5);
             }
@@ -194,7 +197,6 @@ public class PongScreen extends JPanel implements ActionListener{
         panel.getActionMap().put("moveP2Up", moveP2Up);
         Action moveP2Down = new AbstractAction(){
         public void actionPerformed(ActionEvent e){
-            System.out.println("moveP2Down");
             if(acceptInput == true){
             movePlayer2(5);
             }
@@ -217,7 +219,6 @@ public class PongScreen extends JPanel implements ActionListener{
         else if(y > 225){
          y = 225;
         }
-        System.out.println(y);
         p1Paddle = new JPanel();
         p1Paddle.setLayout(null);
         p1Paddle.setBounds(40, y, 10, 50);
@@ -241,7 +242,6 @@ public class PongScreen extends JPanel implements ActionListener{
         else if(y > 225){
          y = 225;
         }
-        System.out.println(y);
         p2Paddle = new JPanel();
         p2Paddle.setLayout(null);
         p2Paddle.setBounds(250, y, 10, 50);
@@ -333,6 +333,9 @@ class Ball extends JPanel implements ActionListener {
     private double current_direction_x;
     private double current_direction_y;
     
+    private int winner;
+    
+    
     public Ball(){
         delta = MILLISECONDS_PER_SECOND / FRAMES_PER_SECOND;
         gameLoopTimer = new Timer(delta, this);
@@ -404,6 +407,44 @@ class Ball extends JPanel implements ActionListener {
             if(p2Hitbox != null && getBounds().intersects(p2Hitbox.getBounds())) {
                 current_direction_x = -1 * Math.abs(current_direction_x);
             }
+            
+            //scoring
+            if(current_x == 0) {
+                recenter();
+                PongScreen.p2Score += 10;
+                PongScreen.p2ScoreLabel.setText(Integer.toString(PongScreen.p2Score));
+                PongScreen.p1Paddle.setBounds(40, 100, 10, 50);        
+                PongScreen.p2Paddle.setBounds(250, 100, 10, 50);
+            }
+            else if(current_x == GAME_WINDOW_WIDTH - BALL_SIDE_LENGTH){
+                recenter();
+                PongScreen.p1Score += 10;
+                PongScreen.p1ScoreLabel.setText(Integer.toString(PongScreen.p1Score));
+                PongScreen.p1Paddle.setBounds(40, 100, 10, 50);        
+                PongScreen.p2Paddle.setBounds(250, 100, 10, 50);
+            }
+            
+            //ending game on score 100
+            if(PongScreen.p1Score == 100 || PongScreen.p2Score == 100){
+                if(PongScreen.p1Score == 100){
+                    winner = 1;
+                }
+                else if(PongScreen.p2Score == 100){
+                    winner = 2;
+                }
+                JOptionPane.showMessageDialog(this.getTopLevelAncestor(), 
+                    "Player " + Integer.toString(winner) +
+                    " wins!\n" +
+                    "Click [Quit] to return to menu screen\n" + 
+                    "Press [Space] to play again", 
+                    "Game Over", 
+                    JOptionPane.PLAIN_MESSAGE);
+                    PongScreen.acceptInput = false;
+                    PongScreen.p1Score = 0;
+                    PongScreen.p2Score = 0;
+                    PongScreen.p1ScoreLabel.setText(Integer.toString(PongScreen.p1Score));
+                    PongScreen.p2ScoreLabel.setText(Integer.toString(PongScreen.p2Score));
+                }
         }
     }
     
