@@ -73,10 +73,6 @@ class HighScoresScreen extends JPanel {
     
     public void paintComponent(Graphics g){
         super.paintComponent(g);
-        //g.drawString("High Scores", 250, 25); 
-        //for(int i = 0; i < 5; i++){
-        // g.drawString("ABC.....00000", 250, 50 + offset*i);
-        //}
         backButton.setEnabled(true);
         backButton.setVisible(true);
         

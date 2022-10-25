@@ -118,7 +118,6 @@ class PlayScreen extends JPanel implements ActionListener{
                 restartButton.setVisible(false);
             }
         });
-        //upperContainer.add(restartButton);
         
         
         testAnswerDisplayer = new JLabel();
@@ -215,7 +214,6 @@ class PlayScreen extends JPanel implements ActionListener{
         setEnabled(false);
         System.out.println("current score: " + currentScore);
         setScore(currentScore);
-        //cardLO.show(panel, "Game Over");        
         cardLO.show(panel, "Color Game");
         restart();
         end = true;

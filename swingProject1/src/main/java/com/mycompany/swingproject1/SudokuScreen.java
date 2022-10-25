@@ -83,116 +83,6 @@ public class SudokuScreen extends JPanel implements ActionListener{
         timeAndDateTimer.setRepeats(true);  
         add(dateAndTimeDisplayer);
         
-        
-        /*
-        //create grid of text fields
-        inputs = new JFormattedTextField[81];
-        gridPanel = new JPanel(new GridLayout(9,9));
-        for (int i = 0; i < 81; i++){
-            //set textfileds to only accept 1 digit
-            try {
-            gridSquare = new JFormattedTextField(new MaskFormatter("#"));
-            } catch(java.text.ParseException e) {
-            System.out.println("sudoku textfield");
-            }
-            
-            //set already placed numbers to be uneditable
-            gridSquare.setDisabledTextColor(Color.black);
-            gridSquare.setEnabled(false);
-            switch(i){
-                case 0:
-                    gridSquare.setText("8");
-                    break;
-                case 3:
-                    gridSquare.setText("4");
-                    break;
-                case 5:
-                    gridSquare.setText("6");
-                    break;
-                case 8:
-                    gridSquare.setText("7");
-                    break;
-                case 15:
-                    gridSquare.setText("4");
-                    break;
-                case 19:
-                    gridSquare.setText("1");
-                    break;
-                case 24:
-                    gridSquare.setText("6");
-                    break;
-                case 25:
-                    gridSquare.setText("5");
-                    break;
-                case 27:
-                    gridSquare.setText("5");
-                    break;
-                case 29:
-                    gridSquare.setText("9");
-                    break;
-                case 31:
-                    gridSquare.setText("3");
-                    break;
-                case 33:
-                    gridSquare.setText("7");
-                    break;
-                case 34:
-                    gridSquare.setText("8");
-                    break;
-                case 40:
-                    gridSquare.setText("7");
-                    break;
-                case 46:
-                    gridSquare.setText("4");
-                    break;
-                case 47:
-                    gridSquare.setText("8");
-                    break;
-                case 49:
-                    gridSquare.setText("2");
-                    break;
-                case 51:
-                    gridSquare.setText("1");
-                    break;
-                case 53:
-                    gridSquare.setText("3");
-                    break;
-                case 55:
-                    gridSquare.setText("5");
-                    break;
-                case 56:
-                    gridSquare.setText("2");
-                    break;
-                case 61:
-                    gridSquare.setText("9");
-                    break;
-                case 65:
-                    gridSquare.setText("1");
-                    break;
-                case 72:
-                    gridSquare.setText("3");
-                    break;
-                case 75:
-                    gridSquare.setText("9");
-                    break;
-                case 77:
-                    gridSquare.setText("2");
-                    break;
-                case 80:
-                    gridSquare.setText("5");
-                    break;
-                default:
-                    //set all other textfields to be editable
-                    gridSquare.setToolTipText("Enter a number between 1-9");
-                    gridSquare.setEnabled(true);
-                    break;
-            }
-            inputs[i] = gridSquare;
-            gridPanel.add(inputs[i]);
-        }
-        //gridPanel is the panel displaying the textfields
-        //basically acts as the sudoku grid
-        */
         gridPanel = new SudokuGrid(SOLUTION,GIVEN_POSITIONS);
         gridPanel.setBounds(140, 20, 300, 340);
         gridPanel.setVisible(true);
@@ -214,7 +104,6 @@ public class SudokuScreen extends JPanel implements ActionListener{
                 gridPanel.setVisible(true);
                 gridPanel.setEnabled(true);
                 add(gridPanel);
-                //gridPanel.initializeGame();
                 repaint();
                 setEnabled(false);
                 cardLO.show(panel, "Game Over");
@@ -240,7 +129,6 @@ public class SudokuScreen extends JPanel implements ActionListener{
                         gridPanel.setVisible(true);
                         gridPanel.setEnabled(true);
                         add(gridPanel);
-                        //gridPanel.initializeGame();
                         repaint();
                         // scene transition
                         setEnabled(false);

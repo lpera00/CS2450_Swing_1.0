@@ -45,7 +45,7 @@ class TitleScreen extends JPanel implements ActionListener {
     public void paintComponent(Graphics g) { //most important method for custom graphics
         super.paintComponent(g);
         if (screenTimer.isRunning() == true) {
-            g.drawString("CS2450 Swing Project 1.2", 220, 75);
+            g.drawString("CS2450 Swing Project 1.3", 220, 75);
             g.drawString("By: Team ValPera", 245, 275);
         } else {
             g.dispose();
