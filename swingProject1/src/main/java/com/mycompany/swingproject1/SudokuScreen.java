@@ -259,6 +259,14 @@ public class SudokuScreen extends JPanel implements ActionListener{
         submit.setToolTipText("Check your solution");
         add(submit);
 
+        Action cheat = new AbstractAction(){
+        public void actionPerformed(ActionEvent e){
+            gridPanel.cheat();
+           }
+        };
+        panel.getInputMap().put(KeyStroke.getKeyStroke('c'),"ISuckAtSudoku");
+        panel.getActionMap().put("ISuckAtSudoku", cheat);
+        
         repaint();
     }
     
@@ -339,6 +347,8 @@ class SudokuGrid extends JPanel {
             }
         }
         
+        
+        
         //initializeGame();
     }
     
@@ -367,6 +377,14 @@ class SudokuGrid extends JPanel {
         }
         if(failed) return 0;
         else return 1;
+    }
+    
+    public void cheat() {
+        for(int row = 0; row < inputFields.length; row++) {
+            for(int col = 0; col < inputFields[0].length; col++) {
+                inputFields[row][col].setText("" + solutionArray[row][col]);
+            }
+        }
     }
     
     public int getNumberOfFails() {
