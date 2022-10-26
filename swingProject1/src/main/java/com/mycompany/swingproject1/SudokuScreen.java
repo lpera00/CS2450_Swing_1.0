@@ -234,10 +234,6 @@ class SudokuGrid extends JPanel {
                 markedWrong[row][col] = false;
             }
         }
-        
-        
-        
-        //initializeGame();
     }
     
     // public method to check if sudoku is solved; returns 1 if solved, 0 if not solved, and -1 for invalid input
