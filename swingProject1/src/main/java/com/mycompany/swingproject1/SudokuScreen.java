@@ -91,7 +91,7 @@ public class SudokuScreen extends JPanel implements ActionListener{
         
         feedbackLabel = new JLabel();
         feedbackLabel.setBounds(25, 250, 100, 100);
-        feedbackLabel.setVisible(true);
+        feedbackLabel.setVisible(false);
         add(feedbackLabel);
         
         //quit button
@@ -102,6 +102,7 @@ public class SudokuScreen extends JPanel implements ActionListener{
                 gridPanel = new SudokuGrid(SOLUTION,GIVEN_POSITIONS);
                 gridPanel.setBounds(140, 20, 300, 340);
                 gridPanel.setVisible(true);
+                feedbackLabel.setVisible(false);
                 gridPanel.setEnabled(true);
                 add(gridPanel);
                 repaint();
@@ -127,6 +128,7 @@ public class SudokuScreen extends JPanel implements ActionListener{
                         gridPanel = new SudokuGrid(SOLUTION,GIVEN_POSITIONS);
                         gridPanel.setBounds(140, 20, 300, 340);
                         gridPanel.setVisible(true);
+                        feedbackLabel.setVisible(false);
                         gridPanel.setEnabled(true);
                         add(gridPanel);
                         repaint();
@@ -136,9 +138,11 @@ public class SudokuScreen extends JPanel implements ActionListener{
                         break;
                     case 0: // incorrect answer
                         // scoring feedback handled elsewhere
+                        feedbackLabel.setVisible(true);
                         feedbackLabel.setText("Try again!");
                         break;
                     default: // invalid answer
+                        feedbackLabel.setVisible(true);
                         feedbackLabel.setText("Invalid input!");
                 }
             }
